@@ -87,8 +87,29 @@ class Elo:
             self.region[r] *= 1 - self.p.region_regress
         self.active = set()
 
-    def update(self, blue, red, blue_win):
-        p = self.p_game(blue, red, "Blue")
+    def set_homes(self, new_home):
+        """Switch to a new team to region map without changing anyone's strength.
+
+        A team that changes region keeps team plus region constant. A region
+        seen for the first time starts at the average strength of the known
+        teams moving into it, so its newcomers start at that level too.
+        """
+        movers = [t for t in self.team if new_home.get(t) != self.home.get(t)]
+        strength = {t: self.strength(t) for t in movers}
+        fresh = defaultdict(list)
+        for t in movers:
+            r = new_home.get(t)
+            if r is not None and r not in self.region:
+                fresh[r].append(strength[t])
+        for r, vals in fresh.items():
+            self.region[r] = sum(vals) / len(vals)
+        self.home = new_home
+        for t in movers:
+            self.team[t] = strength[t] - self.region_offset(t)
+
+    def update(self, blue, red, blue_win, p=None):
+        if p is None:
+            p = self.p_game(blue, red, "Blue")
         delta = blue_win - p
         self.team[blue] += self.p.k_team * delta
         self.team[red] -= self.p.k_team * delta
@@ -115,4 +136,35 @@ def run(games, params, home):
         model.start_year(year)
         diffs[i] = model.diff(blue, red)
         probs[i] = model.update(blue, red, win)
+    return model, probs, diffs
+
+
+def run_v3(games, params, homes):
+    """Replay with per-year home regions and strict finish times.
+
+    homes is {year: {team: region}}. A game's result only reaches the ratings
+    once its end time has passed, so two overlapping games never see each
+    other. Needs the end column from data.add_end_times.
+    """
+    from evalkit import release_order
+
+    model = Elo(params, {})
+    n = len(games)
+    probs, diffs = np.empty(n), np.empty(n)
+    years = games["year"].to_numpy()
+    blue, red = games["blue"].to_numpy(), games["red"].to_numpy()
+    win = games["blue_win"].to_numpy()
+    start, end = games["date"].to_numpy(), games["end"].to_numpy()
+    applied = np.zeros(n, dtype=bool)
+    for i, finished in release_order(start, end):
+        for j in finished:
+            model.update(blue[j], red[j], win[j], probs[j])
+            applied[j] = True
+        if years[i] != model.year:
+            model.start_year(years[i])
+            model.set_homes(homes[int(years[i])])
+        diffs[i] = model.diff(blue[i], red[i])
+        probs[i] = model.p_game(blue[i], red[i], "Blue")
+    for j in sorted(np.flatnonzero(~applied), key=lambda j: end[j]):
+        model.update(blue[j], red[j], win[j], probs[j])
     return model, probs, diffs

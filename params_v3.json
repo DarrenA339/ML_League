@@ -1,0 +1,85 @@
+{
+  "elo": {
+    "k_team": 32,
+    "k_region": 24,
+    "side_adv": 40.19227251825887,
+    "season_regress": 0.3,
+    "region_regress": 0.0,
+    "scale": 400.0
+  },
+  "platt": {
+    "a": -0.07066874014285912,
+    "b": 0.9901047780105865
+  },
+  "fit_years": [
+    2022,
+    2023
+  ],
+  "platt_fit_years": [
+    2024
+  ],
+  "leagues": [
+    "CBLOL",
+    "FST",
+    "LCK",
+    "LCP",
+    "LCS",
+    "LEC",
+    "LJL",
+    "LPL",
+    "LTA",
+    "LTA N",
+    "LTA S",
+    "MSI",
+    "PCS",
+    "VCS",
+    "WLDs"
+  ],
+  "grid": {
+    "k_team": [
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      40
+    ],
+    "k_region": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56,
+      64,
+      72,
+      80,
+      88,
+      96
+    ],
+    "season_regress": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6
+    ],
+    "region_regress": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.5
+    ]
+  },
+  "k_region_tuned_on_fit_years": 80,
+  "k_region_chosen_on": "2024"
+}

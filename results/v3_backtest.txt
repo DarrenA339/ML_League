@@ -1,0 +1,232 @@
+Elo v3 backtest
+15842 games in the v3 set from 2022-01-10 to 2026-11-13
+fit on 2022 to 2023, calibrated and compared on 2024. 2025 and 2026 are not scored here.
+
+league codes found in the data (games by calendar year)
+  codes in config.py missing from the data  none
+  year    2022  2023  2024  2025  2026           kind
+  league                                             
+  CBLOL    243   242   263     0   299          major
+  FST        0     0     0    35    45  international
+  LCK      467   488   482   555   502          major
+  LCP        0     0     0   291   301          major
+  LCS      306   264   192     0   283          major
+  LEC      243   288   294   308   383          major
+  LJL      215   258   148   374   363          major
+  LPL      786   755   717   805   674          major
+  LTA        0     0     0    40     0  international
+  LTA N      0     0     0   214     0          major
+  LTA S      0     0     0   222     0          major
+  MSI       80    76    78    80    71  international
+  PCS      273   293   297   302    86          major
+  VCS      325   362   252   141   155          major
+  WLDs     155   137   132    96   106  international
+
+blue side advantage from 2022 to 2023 game 1s  40.2 Elo
+
+grid search, full grid, log loss on all 6256 games of 2022 to 2023
+  starting grid {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  round 1  best {'k_team': 32, 'k_region': 32, 'season_regress': 0.3, 'region_regress': 0.0}  log loss 0.62091  (1960 runs so far)
+  best value on a grid edge, widened to {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32, 40, 48], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  round 2  best {'k_team': 32, 'k_region': 48, 'season_regress': 0.3, 'region_regress': 0.0}  log loss 0.62021  (2520 runs so far)
+  best value on a grid edge, widened to {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  round 3  best {'k_team': 32, 'k_region': 64, 'season_regress': 0.3, 'region_regress': 0.0}  log loss 0.61992  (3080 runs so far)
+  best value on a grid edge, widened to {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 72, 80], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  round 4  best {'k_team': 32, 'k_region': 80, 'season_regress': 0.3, 'region_regress': 0.0}  log loss 0.61987  (3640 runs so far)
+  best value on a grid edge, widened to {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  round 5  best {'k_team': 32, 'k_region': 80, 'season_regress': 0.3, 'region_regress': 0.0}  log loss 0.61987  (4200 runs so far)
+  note  region_regress = 0.0 is at its natural limit (0.0, 1.0)
+  final grid {'k_team': [8, 12, 16, 20, 24, 28, 32, 40], 'k_region': [0, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96], 'season_regress': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 'region_regress': [0.0, 0.1, 0.2, 0.3, 0.5]}
+  tuned params {'k_team': 32, 'k_region': 80, 'side_adv': 40.19227251825887, 'season_regress': 0.3, 'region_regress': 0.0, 'scale': 400.0}
+  check  best params if only 2023 is scored (2022 as warm up)  {'k_team': 28, 'k_region': 72, 'season_regress': 0.3, 'region_regress': 0.0}
+
+k_region check on 2024 (other settings fixed at the tuned values)
+  the tuned k_region 80 was fit while region offsets were still climbing from zero
+  k_region   0  2024 cross-region games n=236 log loss 0.6625  2024 all games log loss 0.6078
+  k_region   4  2024 cross-region games n=236 log loss 0.6453  2024 all games log loss 0.6062
+  k_region   8  2024 cross-region games n=236 log loss 0.6358  2024 all games log loss 0.6053
+  k_region  12  2024 cross-region games n=236 log loss 0.6306  2024 all games log loss 0.6048
+  k_region  16  2024 cross-region games n=236 log loss 0.6281  2024 all games log loss 0.6045
+  k_region  24  2024 cross-region games n=236 log loss 0.6281  2024 all games log loss 0.6045
+  k_region  32  2024 cross-region games n=236 log loss 0.6317  2024 all games log loss 0.6048
+  k_region  40  2024 cross-region games n=236 log loss 0.6373  2024 all games log loss 0.6053
+  k_region  48  2024 cross-region games n=236 log loss 0.6440  2024 all games log loss 0.6059
+  k_region  56  2024 cross-region games n=236 log loss 0.6512  2024 all games log loss 0.6066
+  k_region  64  2024 cross-region games n=236 log loss 0.6588  2024 all games log loss 0.6072
+  k_region  72  2024 cross-region games n=236 log loss 0.6665  2024 all games log loss 0.6079
+  k_region  80  2024 cross-region games n=236 log loss 0.6743  2024 all games log loss 0.6086  tuned on 2022 to 2023
+  k_region  88  2024 cross-region games n=236 log loss 0.6822  2024 all games log loss 0.6093
+  k_region  96  2024 cross-region games n=236 log loss 0.6901  2024 all games log loss 0.6100
+  k_region 24 vs tuned 80, 2024 all games      n= 2855  log loss diff -0.0041  95% interval -0.0070 to -0.0013  better in 100% of resamples  better than noise
+  k_region 24 vs tuned 80, 2024 cross-region   n=  236  log loss diff -0.0463  95% interval -0.0787 to -0.0145  better in 100% of resamples  better than noise
+  decision  k_region 24 replaces 80. It wins on 2024 by more than noise.
+  caveat    it was picked as the best of the grid on 2024, so the interval above is a little optimistic.
+  final params {'k_team': 32, 'k_region': 24, 'side_adv': 40.19227251825887, 'season_regress': 0.3, 'region_regress': 0.0, 'scale': 400.0}
+
+Platt scaling fit on all 2855 games of 2024  p = sigmoid(-0.0707 + 0.9901 * elo_logit)
+  a slope under 1 means raw Elo was overconfident
+
+notes on reading the tables
+  Elo v1 was tuned on 2022 to 2024 international games, so it has already seen 2024.
+  Elo v3 + Platt is in sample on 2024 for its two Platt numbers and for k_region.
+  all major-league games means the whole v3 set, domestic and international.
+
+2022 to 2023 (fit years), cross-region international games
+  Elo v1 (baseline)            n=  343  log loss 0.5848  brier 0.1994  acc 0.676
+  Elo v3 raw                   n=  343  log loss 0.5792  brier 0.1988  acc 0.668
+  Elo v3 + Platt               n=  343  log loss 0.5787  brier 0.1986  acc 0.673
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.2  n=   23  predicted 0.161  observed 0.217
+    0.2 to 0.4  n=   77  predicted 0.310  observed 0.234
+    0.4 to 0.6  n=  123  predicted 0.497  observed 0.537
+    0.6 to 0.8  n=   88  predicted 0.693  observed 0.705
+    0.8 to 1.0  n=   32  predicted 0.853  observed 0.875
+  Elo v3 raw
+    0.0 to 0.2  n=   20  predicted 0.155  observed 0.050
+    0.2 to 0.4  n=   74  predicted 0.301  observed 0.284
+    0.4 to 0.6  n=  118  predicted 0.511  observed 0.492
+    0.6 to 0.8  n=   89  predicted 0.701  observed 0.685
+    0.8 to 1.0  n=   42  predicted 0.867  observed 0.905
+  Elo v3 + Platt
+    0.0 to 0.2  n=   25  predicted 0.157  observed 0.040
+    0.2 to 0.4  n=   74  predicted 0.302  observed 0.324
+    0.4 to 0.6  n=  121  predicted 0.505  observed 0.504
+    0.6 to 0.8  n=   86  predicted 0.699  observed 0.698
+    0.8 to 1.0  n=   37  predicted 0.865  observed 0.892
+
+2022 to 2023 (fit years), all major-league games
+  Elo v1 (baseline)            n= 6256  log loss 0.6345  brier 0.2217  acc 0.650
+  Elo v3 raw                   n= 6256  log loss 0.6215  brier 0.2160  acc 0.653
+  Elo v3 + Platt               n= 6256  log loss 0.6210  brier 0.2158  acc 0.656
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.1  n=    1  predicted 0.086  observed 0.000
+    0.1 to 0.2  n=   50  predicted 0.171  observed 0.280
+    0.2 to 0.3  n=  159  predicted 0.255  observed 0.138
+    0.3 to 0.4  n=  557  predicted 0.359  observed 0.273
+    0.4 to 0.5  n= 1532  predicted 0.458  observed 0.392
+    0.5 to 0.6  n= 2384  predicted 0.548  observed 0.566
+    0.6 to 0.7  n= 1107  predicted 0.642  observed 0.745
+    0.7 to 0.8  n=  366  predicted 0.739  observed 0.811
+    0.8 to 0.9  n=   96  predicted 0.835  observed 0.833
+    0.9 to 1.0  n=    4  predicted 0.914  observed 0.750
+  Elo v3 raw
+    0.0 to 0.1  n=   33  predicted 0.081  observed 0.212
+    0.1 to 0.2  n=  163  predicted 0.156  observed 0.110
+    0.2 to 0.3  n=  403  predicted 0.255  observed 0.248
+    0.3 to 0.4  n=  687  predicted 0.356  observed 0.352
+    0.4 to 0.5  n= 1061  predicted 0.452  observed 0.411
+    0.5 to 0.6  n= 1433  predicted 0.550  observed 0.535
+    0.6 to 0.7  n= 1148  predicted 0.649  observed 0.639
+    0.7 to 0.8  n=  810  predicted 0.746  observed 0.749
+    0.8 to 0.9  n=  418  predicted 0.842  observed 0.833
+    0.9 to 1.0  n=  100  predicted 0.925  observed 0.860
+  Elo v3 + Platt
+    0.0 to 0.1  n=   37  predicted 0.080  observed 0.189
+    0.1 to 0.2  n=  187  predicted 0.157  observed 0.123
+    0.2 to 0.3  n=  441  predicted 0.254  observed 0.259
+    0.3 to 0.4  n=  777  predicted 0.355  observed 0.362
+    0.4 to 0.5  n= 1141  predicted 0.453  observed 0.425
+    0.5 to 0.6  n= 1416  predicted 0.548  observed 0.554
+    0.6 to 0.7  n= 1082  predicted 0.648  observed 0.670
+    0.7 to 0.8  n=  737  predicted 0.745  observed 0.749
+    0.8 to 0.9  n=  358  predicted 0.842  observed 0.849
+    0.9 to 1.0  n=   80  predicted 0.924  observed 0.838
+
+2024 (selection year), cross-region international games
+  Elo v1 (baseline)            n=  166  log loss 0.6444  brier 0.2256  acc 0.639
+  Elo v3 raw                   n=  166  log loss 0.6358  brier 0.2221  acc 0.633
+  Elo v3 + Platt               n=  166  log loss 0.6355  brier 0.2221  acc 0.645
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.2  n=   17  predicted 0.133  observed 0.353
+    0.2 to 0.4  n=   28  predicted 0.323  observed 0.357
+    0.4 to 0.6  n=   50  predicted 0.498  observed 0.560
+    0.6 to 0.8  n=   40  predicted 0.682  observed 0.625
+    0.8 to 1.0  n=   31  predicted 0.877  observed 0.839
+  Elo v3 raw
+    0.0 to 0.2  n=   14  predicted 0.145  observed 0.357
+    0.2 to 0.4  n=   25  predicted 0.321  observed 0.360
+    0.4 to 0.6  n=   50  predicted 0.511  observed 0.460
+    0.6 to 0.8  n=   40  predicted 0.694  observed 0.725
+    0.8 to 1.0  n=   37  predicted 0.866  observed 0.784
+  Elo v3 + Platt
+    0.0 to 0.2  n=   15  predicted 0.142  observed 0.333
+    0.2 to 0.4  n=   26  predicted 0.319  observed 0.385
+    0.4 to 0.6  n=   50  predicted 0.501  observed 0.480
+    0.6 to 0.8  n=   43  predicted 0.694  observed 0.698
+    0.8 to 1.0  n=   32  predicted 0.865  observed 0.812
+
+2024 (selection year), all major-league games
+  Elo v1 (baseline)            n= 2855  log loss 0.6212  brier 0.2156  acc 0.671
+  Elo v3 raw                   n= 2855  log loss 0.6045  brier 0.2092  acc 0.661
+  Elo v3 + Platt               n= 2855  log loss 0.6039  brier 0.2089  acc 0.669
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.1  n=    5  predicted 0.072  observed 0.200
+    0.1 to 0.2  n=   34  predicted 0.161  observed 0.235
+    0.2 to 0.3  n=   93  predicted 0.259  observed 0.151
+    0.3 to 0.4  n=  308  predicted 0.353  observed 0.299
+    0.4 to 0.5  n=  673  predicted 0.454  observed 0.360
+    0.5 to 0.6  n=  915  predicted 0.548  observed 0.577
+    0.6 to 0.7  n=  539  predicted 0.643  observed 0.718
+    0.7 to 0.8  n=  215  predicted 0.741  observed 0.837
+    0.8 to 0.9  n=   61  predicted 0.843  observed 0.902
+    0.9 to 1.0  n=   12  predicted 0.923  observed 0.833
+  Elo v3 raw
+    0.0 to 0.1  n=   27  predicted 0.068  observed 0.074
+    0.1 to 0.2  n=  123  predicted 0.158  observed 0.146
+    0.2 to 0.3  n=  214  predicted 0.252  observed 0.313
+    0.3 to 0.4  n=  334  predicted 0.355  observed 0.317
+    0.4 to 0.5  n=  451  predicted 0.452  observed 0.437
+    0.5 to 0.6  n=  524  predicted 0.551  observed 0.487
+    0.6 to 0.7  n=  490  predicted 0.649  observed 0.661
+    0.7 to 0.8  n=  365  predicted 0.747  observed 0.745
+    0.8 to 0.9  n=  248  predicted 0.844  observed 0.819
+    0.9 to 1.0  n=   79  predicted 0.930  observed 0.924
+  Elo v3 + Platt
+    0.0 to 0.1  n=   35  predicted 0.073  observed 0.086
+    0.1 to 0.2  n=  132  predicted 0.159  observed 0.167
+    0.2 to 0.3  n=  229  predicted 0.251  observed 0.319
+    0.3 to 0.4  n=  365  predicted 0.353  observed 0.329
+    0.4 to 0.5  n=  473  predicted 0.451  observed 0.429
+    0.5 to 0.6  n=  532  predicted 0.550  observed 0.519
+    0.6 to 0.7  n=  468  predicted 0.649  observed 0.688
+    0.7 to 0.8  n=  343  predicted 0.748  observed 0.752
+    0.8 to 0.9  n=  206  predicted 0.844  observed 0.840
+    0.9 to 1.0  n=   72  predicted 0.926  observed 0.931
+
+paired bootstrap over games on 2024, log loss difference (negative favours the first model)
+  v3 raw vs v1, cross-region international     n=  166  log loss diff -0.0086  95% interval -0.0433 to +0.0266  better in 70% of resamples  within noise
+  v3 + Platt vs v1, cross-region international n=  166  log loss diff -0.0089  95% interval -0.0428 to +0.0243  better in 71% of resamples  within noise
+  v3 + Platt vs v3 raw, cross-region international n=  166  log loss diff -0.0003  95% interval -0.0055 to +0.0051  better in 53% of resamples  within noise
+  v3 raw vs v1, all major-league games         n= 2855  log loss diff -0.0167  95% interval -0.0233 to -0.0098  better in 100% of resamples  better than noise
+  v3 + Platt vs v1, all major-league games     n= 2855  log loss diff -0.0173  95% interval -0.0236 to -0.0106  better in 100% of resamples  better than noise
+  v3 + Platt vs v3 raw, all major-league games n= 2855  log loss diff -0.0005  95% interval -0.0018 to +0.0007  better in 82% of resamples  within noise
+
+region offsets after the last game in the data (2026-11-13)
+  LCK         +369   teams active in 2026  10
+  LPL         +282   teams active in 2026  14
+  LEC         +117   teams active in 2026  12
+  LCS          +75   teams active in 2026  12
+  LCP          -13   teams active in 2026  10
+  CBLOL        -49   teams active in 2026  12
+  VCS          -84   teams active in 2026  7
+  Minor       -100   teams active in 2026  0
+  PCS         -110   teams active in 2026  14
+  LJL         -348   teams active in 2026  20
+
+top 10 teams active in 2026 (team rating plus region offset)
+  Gen.G                      LCK    team   +306  region   +369  total   +675
+  Bilibili Gaming            LPL    team   +314  region   +282  total   +595
+  Hanwha Life Esports        LCK    team   +117  region   +369  total   +486
+  T1                         LCK    team    +92  region   +369  total   +462
+  Invictus Gaming            LPL    team   +172  region   +282  total   +453
+  Dplus Kia                  LCK    team    +68  region   +369  total   +437
+  Ninjas in Pyjamas          LPL    team   +146  region   +282  total   +428
+  Top Esports                LPL    team   +136  region   +282  total   +418
+  Anyone's Legend            LPL    team   +118  region   +282  total   +400
+  KT Rolster                 LCK    team    +17  region   +369  total   +387
+
+saved params_v3.json
