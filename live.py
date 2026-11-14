@@ -12,9 +12,15 @@ import v3
 from draft import (champ_table, feature_matrix, player_table, predict_logistic,
                    raw_side_from_snapshot, POSITIONS)
 from elo import EloParams
-from evalkit import sigmoid
+from evalkit import logit, sigmoid
 from series import score_distribution
 
+FEATURE_LABELS = {
+    "ch_wr": "Champion recent win rate",
+    "pc_wr": "Player win rate on champion",
+    "pc_games": "Player games on champion",
+    "ch_pick": "Champion pick share",
+}
 LOOKUPS = "lookups.pkl"
 MODEL = "draft_model.json"
 
@@ -98,10 +104,24 @@ def draft_game(lookups, model, a, b, a_blue, names_a, champs_a, names_b, champs_
     X = feature_matrix(np.stack([raw[blue], raw[red]]), blue_logit,
                        hp["pc_shrink"], hp["window"], hp["champ_shrink"], model["features"])
     p_blue = float(predict_logistic(model, X)[0])
-    z = (X - np.array(model["mean"])) / np.array(model["std"])
+    p = p_blue if a_blue else 1 - p_blue
+
+    # Walk from the Elo number to the draft number one piece at a time, from
+    # team A's point of view. A draft feature at zero means the two teams are
+    # level on it. Whatever is left once every feature is zero is the model's
+    # own small recalibration of Elo, not a draft effect.
     sign = 1.0 if a_blue else -1.0
-    # Contribution of each feature to A's logit, measured from an average game.
-    parts = {n: sign * float(c * v) for n, c, v in zip(model["features"], model["coef"], z)}
+    x = np.atleast_2d(X)[0]
+    beta = np.array(model["coef"]) / np.array(model["std"])
+    steps, logit_now, p_now = [], float(logit(p_elo)), p_elo
+    draft_part = {n: sign * float(bj * xj) for n, bj, xj in zip(model["features"], beta, x) if n != "elo_logit"}
+    recal = float(logit(p)) - logit_now - sum(draft_part.values())
+    for label, value in [("Model recalibration of Elo", recal)] + [(FEATURE_LABELS.get(n, n), v)
+                                                                   for n, v in draft_part.items()]:
+        logit_now += value
+        p_next = float(sigmoid(logit_now))
+        steps.append({"label": label, "points": 100 * (p_next - p_now)})
+        p_now = p_next
 
     tables = {}
     for tag, names, champs in (("a", names_a, champs_a), ("b", names_b, champs_b)):
@@ -115,5 +135,5 @@ def draft_game(lookups, model, a, b, a_blue, names_a, champs_a, names_b, champs_
             "player_games": int(pt["player_games"][i]),
             "champ_picks": int(ct["champ_picks"][i]), "champ_wr": float(ct["champ_wr"][i]),
         } for i in range(5)]
-    return {"p": p_blue if a_blue else 1 - p_blue, "p_elo": p_elo, "parts": parts, "tables": tables,
-            "window": hp["window"]}
+    return {"p": p, "p_elo": p_elo, "steps": steps, "tables": tables, "window": hp["window"],
+            "features": {n: float(v) for n, v in zip(model["features"], x)}, "blue_logit": blue_logit}

@@ -1,0 +1,96 @@
+Final test on 2025 to 2026
+Every setting was frozen before this ran. Elo v3 was fit on 2022 to 2023 with k_region and
+Platt scaling from 2024. The draft model was fit on 2022 to 2023 and chosen on 2024.
+draft model  Elo + champion win rate + player on champion  {'pc_shrink': 1, 'window': 60, 'champ_shrink': 160}
+
+How clean is this? 2025 to 2026 had already been looked at twice (v1 and the rejected v2)
+before v3 was designed. v3 was never tuned on these years, but knowing that v1 was
+overconfident there shaped the design, so treat this as nearly clean, not pristine.
+Elo v1 itself was scored on these games before, with the same params.json.
+
+2025 to 2026, cross-region international games
+  Elo v1 (baseline)            n=  391  log loss 0.6201  brier 0.2157  acc 0.650
+  Elo v3 + Platt               n=  391  log loss 0.6066  brier 0.2108  acc 0.657
+  Draft (adopted)              n=  391  log loss 0.6073  brier 0.2104  acc 0.668
+  2025 only
+    Elo v1 (baseline)            n=  196  log loss 0.6253  brier 0.2161  acc 0.658
+    Elo v3 + Platt               n=  196  log loss 0.6225  brier 0.2145  acc 0.668
+    Draft (adopted)              n=  196  log loss 0.6196  brier 0.2127  acc 0.684
+  2026 only
+    Elo v1 (baseline)            n=  195  log loss 0.6149  brier 0.2154  acc 0.641
+    Elo v3 + Platt               n=  195  log loss 0.5907  brier 0.2071  acc 0.646
+    Draft (adopted)              n=  195  log loss 0.5950  brier 0.2082  acc 0.651
+  paired bootstrap over games, log loss difference (negative favours the first model)
+  Elo v3 + Platt vs Elo v1                     n=  391  log loss diff -0.0135  95% interval -0.0388 to +0.0097  better in 87% of resamples  within noise
+  Draft vs Elo v3 + Platt                      n=  391  log loss diff +0.0007  95% interval -0.0081 to +0.0094  better in 44% of resamples  within noise
+  Draft vs Elo v1                              n=  391  log loss diff -0.0128  95% interval -0.0382 to +0.0106  better in 85% of resamples  within noise
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.2  n=   39  predicted 0.139  observed 0.282
+    0.2 to 0.4  n=   74  predicted 0.300  observed 0.338
+    0.4 to 0.6  n=  124  predicted 0.506  observed 0.556
+    0.6 to 0.8  n=   93  predicted 0.708  observed 0.656
+    0.8 to 1.0  n=   61  predicted 0.877  observed 0.852
+  Elo v3 + Platt
+    0.0 to 0.2  n=   31  predicted 0.146  observed 0.161
+    0.2 to 0.4  n=   82  predicted 0.311  observed 0.390
+    0.4 to 0.6  n=  100  predicted 0.515  observed 0.560
+    0.6 to 0.8  n=  107  predicted 0.693  observed 0.607
+    0.8 to 1.0  n=   71  predicted 0.867  observed 0.845
+  Draft (adopted)
+    0.0 to 0.2  n=   34  predicted 0.147  observed 0.176
+    0.2 to 0.4  n=   78  predicted 0.307  observed 0.359
+    0.4 to 0.6  n=  106  predicted 0.510  observed 0.566
+    0.6 to 0.8  n=  101  predicted 0.701  observed 0.644
+    0.8 to 1.0  n=   72  predicted 0.869  observed 0.819
+
+2025 to 2026, all major-league games
+  Elo v1 (baseline)            n= 6731  log loss 0.6384  brier 0.2236  acc 0.640
+  Elo v3 + Platt               n= 6731  log loss 0.6273  brier 0.2186  acc 0.645
+  Draft (adopted)              n= 6731  log loss 0.6225  brier 0.2166  acc 0.652
+  2025 only
+    Elo v1 (baseline)            n= 3463  log loss 0.6330  brier 0.2209  acc 0.644
+    Elo v3 + Platt               n= 3463  log loss 0.6167  brier 0.2140  acc 0.652
+    Draft (adopted)              n= 3463  log loss 0.6115  brier 0.2118  acc 0.661
+  2026 only
+    Elo v1 (baseline)            n= 3268  log loss 0.6442  brier 0.2265  acc 0.635
+    Elo v3 + Platt               n= 3268  log loss 0.6384  brier 0.2235  acc 0.636
+    Draft (adopted)              n= 3268  log loss 0.6342  brier 0.2216  acc 0.643
+  paired bootstrap over games, log loss difference (negative favours the first model)
+  Elo v3 + Platt vs Elo v1                     n= 6731  log loss diff -0.0112  95% interval -0.0156 to -0.0067  better in 100% of resamples  better than noise
+  Draft vs Elo v3 + Platt                      n= 6731  log loss diff -0.0047  95% interval -0.0067 to -0.0028  better in 100% of resamples  better than noise
+  Draft vs Elo v1                              n= 6731  log loss diff -0.0159  95% interval -0.0207 to -0.0111  better in 100% of resamples  better than noise
+  calibration (bins of predicted blue win probability)
+  Elo v1 (baseline)
+    0.0 to 0.1  n=   13  predicted 0.077  observed 0.154
+    0.1 to 0.2  n=   64  predicted 0.158  observed 0.219
+    0.2 to 0.3  n=  180  predicted 0.259  observed 0.217
+    0.3 to 0.4  n=  663  predicted 0.362  observed 0.317
+    0.4 to 0.5  n= 1657  predicted 0.456  observed 0.404
+    0.5 to 0.6  n= 2330  predicted 0.547  observed 0.555
+    0.6 to 0.7  n= 1268  predicted 0.644  observed 0.733
+    0.7 to 0.8  n=  412  predicted 0.739  observed 0.779
+    0.8 to 0.9  n=  110  predicted 0.842  observed 0.809
+    0.9 to 1.0  n=   34  predicted 0.928  observed 0.912
+  Elo v3 + Platt
+    0.0 to 0.1  n=   29  predicted 0.080  observed 0.103
+    0.1 to 0.2  n=  232  predicted 0.161  observed 0.203
+    0.2 to 0.3  n=  507  predicted 0.258  observed 0.258
+    0.3 to 0.4  n=  856  predicted 0.353  observed 0.370
+    0.4 to 0.5  n= 1189  predicted 0.454  observed 0.452
+    0.5 to 0.6  n= 1445  predicted 0.547  observed 0.534
+    0.6 to 0.7  n= 1183  predicted 0.648  observed 0.658
+    0.7 to 0.8  n=  789  predicted 0.747  observed 0.759
+    0.8 to 0.9  n=  433  predicted 0.839  observed 0.818
+    0.9 to 1.0  n=   68  predicted 0.927  observed 0.868
+  Draft (adopted)
+    0.0 to 0.1  n=   34  predicted 0.080  observed 0.118
+    0.1 to 0.2  n=  246  predicted 0.160  observed 0.203
+    0.2 to 0.3  n=  545  predicted 0.255  observed 0.272
+    0.3 to 0.4  n=  863  predicted 0.353  observed 0.336
+    0.4 to 0.5  n= 1150  predicted 0.452  observed 0.462
+    0.5 to 0.6  n= 1392  predicted 0.550  observed 0.548
+    0.6 to 0.7  n= 1126  predicted 0.648  observed 0.639
+    0.7 to 0.8  n=  840  predicted 0.747  observed 0.769
+    0.8 to 0.9  n=  452  predicted 0.842  observed 0.825
+    0.9 to 1.0  n=   83  predicted 0.925  observed 0.892
