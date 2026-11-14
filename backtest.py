@@ -14,10 +14,10 @@ from elo import EloParams, estimate_side_adv, run
 from series import series_win_prob
 
 GRID = {
-    "k_team": [12, 18, 24, 32, 40, 56],
-    "k_region": [0, 4, 8, 12, 20, 32],
-    "season_regress": [0.1, 0.25, 0.4, 0.6],
-    "region_regress": [0.0, 0.15, 0.3, 0.5],
+    "k_team": [4, 8, 12, 18, 24],
+    "k_region": [16, 32, 48, 64, 96],
+    "season_regress": [0.4, 0.6, 0.75, 0.9],
+    "region_regress": [0.0, 0.05, 0.15],
 }
 
 
