@@ -1,0 +1,33 @@
+Gen.G                region LCK  last game in data 2026-11-08  team   +166  region offset   +434  total   +600
+Bilibili Gaming      region LPL  last game in data 2026-11-09  team   +207  region offset   +389  total   +596
+
+P(Gen.G wins one game)  on blue 53.8%  on red 47.2%
+P(Gen.G wins the Bo5)  50.9%
+  Gen.G 3-2  20.2%
+  Bilibili Gaming 3-2  19.8%
+  Gen.G 3-1  19.5%
+  Bilibili Gaming 3-1  18.7%
+  Gen.G 3-0  11.2%
+  Bilibili Gaming 3-0  10.6%
+
+region offsets
+  LCK        +434
+  LPL        +389
+  LFL        +389
+  LCKC       +370
+  NACL       +225
+  LEC        +207
+  LCSA       +206
+  PRM        +197
+
+top 10 teams active in 2026
+  Gen.G                      +600
+  Bilibili Gaming            +596
+  Galions                    +541
+  Hanwha Life Esports        +522
+  T1 Esports Academy         +514
+  Solary                     +502
+  T1                         +495
+  Dplus Kia                  +477
+  Ninjas in Pyjamas          +458
+  Anyone's Legend            +453
