@@ -69,7 +69,14 @@ def main():
     ap.add_argument("--choice", default="models/draft_choice.json")
     ap.add_argument("--out", default="models")
     ap.add_argument("--fit-years", type=int, nargs="+", help="default is every year in the data")
+    ap.add_argument("--with-ewc", action="store_true",
+                    help="sensitivity check, count EWC games too. Use with --out models_ewc")
     args = ap.parse_args()
+    if args.with_ewc:
+        import config
+        config.enable_ewc()
+        if os.path.normpath(args.out) == "models":
+            raise SystemExit("--with-ewc would overwrite the frozen models. Pass --out models_ewc.")
 
     params, platt = v3.load_params(args.params)
     data = build_dataset(load_rows(args.csvs), params, platt)

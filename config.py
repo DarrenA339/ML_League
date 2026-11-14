@@ -39,3 +39,10 @@ MINOR_REGION = "Minor"
 FIT_YEARS = [2022, 2023]
 SELECT_YEARS = [2024]
 TEST_YEARS = [2025, 2026]
+
+
+def enable_ewc():
+    """Sensitivity switch. Counts EWC as an international event for this run
+    only. The frozen v3 results were produced without it."""
+    V3_INTERNATIONAL.add("EWC")
+    V3_LEAGUES.add("EWC")
