@@ -1,3 +1,4 @@
 time,team_a,team_b,best_of,score_a,score_b,game_number,team_a_side,fearless,team_a_players,team_a_picks,team_b_players,team_b_picks,elo_p_game,draft_p_game,elo_p_series,draft_p_series,draft_model,data_through
 2026-11-14T04:23:04-05:00,Gen.G,Bilibili Gaming,5,0,0,1,Blue,Off,Kiin|Canyon|Chovy|Ruler|Duro,Aatrox||||,Bin|Xun|Knight|Viper|ON,||||,0.649,,0.7153,,Elo + champion win rate + player on champion (adopted),2026-11-13
 2026-11-14T04:23:20-05:00,Gen.G,Bilibili Gaming,5,0,0,1,Blue,Off,Kiin|Canyon|Chovy|Ruler|Duro,||||,Bin|Xun|Knight|Viper|ON,||||,0.649,,0.7153,,Elo + champion win rate + player on champion (adopted),2026-11-13
+2026-11-14T14:53:24-05:00,Gen.G,Bilibili Gaming,5,0,0,1,Blue,Both teams,Kiin|Canyon|Chovy|Ruler|Duro,Olaf|Lee Sin|Syndra|Corki|Nami,Bin|Xun|Knight|Viper|ON,K'Sante|Jarvan IV|Locke|Kalista|Renata Glasc,0.649,0.6222,0.7153,0.7062,Elo + champion win rate + player on champion (adopted),2026-11-13
