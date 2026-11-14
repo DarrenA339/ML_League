@@ -1,0 +1,30 @@
+{
+  "status": "adopted",
+  "name": "Elo + champion win rate + player on champion",
+  "features": [
+    "elo_logit",
+    "ch_wr",
+    "pc_wr",
+    "pc_games"
+  ],
+  "hyperparams": {
+    "pc_shrink": 1,
+    "window": 60,
+    "champ_shrink": 160
+  },
+  "fit_years": [
+    2022,
+    2023
+  ],
+  "select_years": [
+    2024
+  ],
+  "select_log_loss": {
+    "elo": 0.603933347788512,
+    "draft": 0.5976590116741942,
+    "diff": -0.00627433611431789,
+    "lo": -0.00926594776199745,
+    "hi": -0.0032798147629960967,
+    "n": 2855
+  }
+}

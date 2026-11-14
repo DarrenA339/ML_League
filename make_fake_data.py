@@ -17,6 +17,7 @@ from elo import win_prob
 TRUE_REGION = {"LCK": 100.0, "LPL": 80.0, "LEC": 0.0, "LCS": -60.0}
 TRUE_SIDE_ADV = 25.0
 POSITIONS = ["top", "jng", "mid", "bot", "sup"]
+CHAMPIONS = {pos: [f"{pos.title()} Champ {i}" for i in range(6)] for pos in POSITIONS}
 
 
 class FakeLeague:
@@ -30,6 +31,8 @@ class FakeLeague:
                 self.skill[name] = self.rng.normal(0, 60)
                 self.league[name] = r
         self.rows, self.gid, self.clock = [], 0, None
+        # Separate stream so adding picks never changes who wins a fake game.
+        self.pick_rng = np.random.default_rng(seed + 1000)
 
     def strength(self, t):
         return self.skill[t] + self.offset[self.league[t]]
@@ -44,8 +47,11 @@ class FakeLeague:
                         year=self.clock.year, date=date, game=game_no, patch=14.1, side=side,
                         teamname=team, result=res, gamelength=1800, golddiffat15=0)
             for pos in POSITIONS:
-                self.rows.append({**base, "position": pos, "playername": f"{team} {pos}"})
-            self.rows.append({**base, "position": "team", "playername": None})
+                self.rows.append({**base, "position": pos, "playername": f"{team} {pos}",
+                                  "playerid": f"fake:{team}:{pos}",
+                                  "champion": str(self.pick_rng.choice(CHAMPIONS[pos]))})
+            self.rows.append({**base, "position": "team", "playername": None,
+                              "playerid": None, "champion": None})
         self.clock += pd.Timedelta(minutes=45)
         return blue_win
 

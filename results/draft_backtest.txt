@@ -1,0 +1,121 @@
+Draft model backtest
+fit on 2022 to 2023 (6256 games), chosen on 2024 (2855 games). 2025 and 2026 are not scored here.
+games dropped for an incomplete lineup  0
+baseline is Elo v3 + Platt on exactly the same games. Its Platt numbers were fit on 2024.
+history for player and champion features comes from every league in the data.
+
+step 1  logistic regression on the Elo logit alone (should match the baseline)
+  Elo v3 + Platt   2024 log loss 0.6039
+  LR on Elo logit  2024 log loss 0.6039
+
+step 2  player features, shrinkage strength chosen on 2024
+  shrunk win rate = (wins on champ + s * player overall win rate) / (games on champ + s)
+  s =   1  2024 log loss 0.60271
+  s =   2  2024 log loss 0.60272
+  s =   5  2024 log loss 0.60274
+  s =  10  2024 log loss 0.60276
+  s =  20  2024 log loss 0.60277
+  s =  40  2024 log loss 0.60278
+  s =  80  2024 log loss 0.60279
+  chosen s = 1. The whole curve spans 0.00009, so the choice barely matters.
+
+step 3  champion win rate, window and shrinkage chosen on 2024
+  shrunk win rate = (wins in window + m * 0.5) / (picks in window + m)
+  window 30 days  m=10 0.6013  m=20 0.6010  m=40 0.6006  m=80 0.6004  m=160 0.6003  m=320 0.6003  m=640 0.6004
+  window 60 days  m=10 0.6006  m=20 0.6002  m=40 0.5998  m=80 0.5995  m=160 0.5994  m=320 0.5994  m=640 0.5995
+  window 90 days  m=10 0.6007  m=20 0.6003  m=40 0.6000  m=80 0.5997  m=160 0.5996  m=320 0.5996  m=640 0.5997
+  chosen window 60 days, m = 160
+
+  check  is champion win rate just the two teams' own recent form in disguise?
+  all games in the window                    2024 log loss 0.5994
+  leaving out every game of these two teams  2024 log loss 0.5994
+  No. The gain survives without their own games, so it is a meta signal.
+
+step 4  forward selection on 2024
+  start from Elo, add the block that helps most, keep it only if the interval excludes zero
+  + champion win rate vs Elo v3 + Platt        n= 2855  log loss diff -0.0046  95% interval -0.0072 to -0.0020  better in 100% of resamples  better than noise
+  + player on champion vs Elo v3 + Platt       n= 2855  log loss diff -0.0012  95% interval -0.0022 to -0.0002  better in 99% of resamples  better than noise
+  + champion pick share vs Elo v3 + Platt      n= 2855  log loss diff +0.0001  95% interval -0.0002 to +0.0004  better in 26% of resamples  within noise
+  keep champion win rate
+  + player on champion vs Elo + champion win rate n= 2855  log loss diff -0.0017  95% interval -0.0030 to -0.0003  better in 99% of resamples  better than noise
+  + champion pick share vs Elo + champion win rate n= 2855  log loss diff +0.0001  95% interval -0.0002 to +0.0004  better in 22% of resamples  within noise
+  keep player on champion
+  + champion pick share vs Elo + champion win rate + player on champion n= 2855  log loss diff -0.0001  95% interval -0.0003 to +0.0000  better in 93% of resamples  within noise
+  stop. Nothing left beats Elo + champion win rate + player on champion by more than noise.
+
+2022 to 2023 (fit years, in sample for the draft model)
+  Elo v3 + Platt (baseline)    n= 6256  log loss 0.6210  brier 0.2158  acc 0.656
+  Elo + champion win rate + player on champion n= 6256  log loss 0.6173  brier 0.2142  acc 0.653
+
+2024 cross-region international games
+  Elo v3 + Platt (baseline)    n=  166  log loss 0.6355  brier 0.2221  acc 0.645
+  Elo + champion win rate + player on champion n=  166  log loss 0.6259  brier 0.2180  acc 0.645
+
+2024 all major-league games
+  Elo v3 + Platt (baseline)    n= 2855  log loss 0.6039  brier 0.2089  acc 0.669
+  Elo + champion win rate + player on champion n= 2855  log loss 0.5977  brier 0.2061  acc 0.678
+
+paired bootstrap over games on 2024, log loss difference (negative favours the draft model)
+  draft vs Elo, all major-league               n= 2855  log loss diff -0.0063  95% interval -0.0093 to -0.0033  better in 100% of resamples  better than noise
+  draft vs Elo, cross-region international     n=  166  log loss diff -0.0096  95% interval -0.0217 to +0.0027  better in 93% of resamples  within noise
+
+step 5  gradient boosting check on the same features
+  gradient boosting, 2024 all  n= 2855  log loss 0.6045  brier 0.2084  acc 0.664
+  gradient boosting vs logistic regression     n= 2855  log loss diff +0.0069  95% interval +0.0025 to +0.0113  better in 0% of resamples  worse than noise
+  Not kept. It does not beat logistic regression on 2024 by more than noise.
+
+decision
+  Elo + champion win rate + player on champion beats Elo v3 on 2024 by more than noise and is adopted.
+  caveat  s, the window and m were also picked on 2024 and three blocks were tried,
+          so the 2024 gain is somewhat optimistic. final_test.py gives the clean number.
+  caveat  the gain is small next to the gap between teams. The draft moves a game by a
+          few points of win probability, not tens.
+  shown in the app  Elo + champion win rate + player on champion
+  2024 log loss 0.5977 vs Elo 0.6039  diff -0.0063 (-0.0093 to -0.0033)
+
+coefficients of Elo + champion win rate + player on champion on standardized features (fit on 2022 to 2023)
+  elo_logit  coef +0.8198   one sd = 0.8402
+  ch_wr      coef +0.1805   one sd = 0.0183
+  pc_wr      coef +0.0337   one sd = 0.1193
+  pc_games   coef +0.0706   one sd = 0.5885
+  intercept  +0.1599
+
+calibration on 2024, all major-league games
+  Elo v3 + Platt (baseline)
+    0.0 to 0.1  n=   35  predicted 0.073  observed 0.086
+    0.1 to 0.2  n=  132  predicted 0.159  observed 0.167
+    0.2 to 0.3  n=  229  predicted 0.251  observed 0.319
+    0.3 to 0.4  n=  365  predicted 0.353  observed 0.329
+    0.4 to 0.5  n=  473  predicted 0.451  observed 0.429
+    0.5 to 0.6  n=  532  predicted 0.550  observed 0.519
+    0.6 to 0.7  n=  468  predicted 0.649  observed 0.688
+    0.7 to 0.8  n=  343  predicted 0.748  observed 0.752
+    0.8 to 0.9  n=  206  predicted 0.844  observed 0.840
+    0.9 to 1.0  n=   72  predicted 0.926  observed 0.931
+  Elo + champion win rate + player on champion
+    0.0 to 0.1  n=   32  predicted 0.067  observed 0.094
+    0.1 to 0.2  n=  151  predicted 0.159  observed 0.159
+    0.2 to 0.3  n=  238  predicted 0.253  observed 0.303
+    0.3 to 0.4  n=  366  predicted 0.354  observed 0.336
+    0.4 to 0.5  n=  481  predicted 0.451  observed 0.420
+    0.5 to 0.6  n=  480  predicted 0.551  observed 0.527
+    0.6 to 0.7  n=  458  predicted 0.647  observed 0.683
+    0.7 to 0.8  n=  335  predicted 0.747  observed 0.764
+    0.8 to 0.9  n=  243  predicted 0.845  observed 0.840
+    0.9 to 1.0  n=   71  predicted 0.932  observed 0.944
+
+calibration on 2024, cross-region international games
+  Elo v3 + Platt (baseline)
+    0.0 to 0.2  n=   15  predicted 0.142  observed 0.333
+    0.2 to 0.4  n=   26  predicted 0.319  observed 0.385
+    0.4 to 0.6  n=   50  predicted 0.501  observed 0.480
+    0.6 to 0.8  n=   43  predicted 0.694  observed 0.698
+    0.8 to 1.0  n=   32  predicted 0.865  observed 0.812
+  Elo + champion win rate + player on champion
+    0.0 to 0.2  n=   15  predicted 0.139  observed 0.267
+    0.2 to 0.4  n=   26  predicted 0.311  observed 0.346
+    0.4 to 0.6  n=   52  predicted 0.494  observed 0.519
+    0.6 to 0.8  n=   34  predicted 0.679  observed 0.706
+    0.8 to 1.0  n=   39  predicted 0.860  observed 0.795
+
+saved models/draft_choice.json
